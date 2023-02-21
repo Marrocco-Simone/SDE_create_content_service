@@ -3,6 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const { default: fetch } = require("node-fetch");
 
+const data_service_url = process.env.DATA_SERVICE_URL;
+const dalle_service_url = process.env.DALLE_SERVICE_URL;
+
 // Set up the server
 const app = express();
 app.use(express.json({ limit: "16mb" }));
@@ -30,7 +33,7 @@ app.post("/prompt", async (req, res) => {
 
     res.send({ received: true });
 
-    const dalle_result = await fetch("http://localhost:2502/image", {
+    const dalle_result = await fetch(`${dalle_service_url}/image`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +61,7 @@ app.post("/prompt", async (req, res) => {
 
     const token =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2M2Y0Y2I0NjA5YTQ5ZTQzMjA4ZTU4MTEiLCJlbWFpbCI6InNpbW9uZUBzZGUuaXQiLCJpYXQiOjE2NzY5ODcyNDksImV4cCI6MTY3NzE2MDA0OX0.-E45997sAFbp_JUR7TeGOAQjikel3rB_hvfrbF_9f54";
-    const database_result = await fetch("http://localhost:2501/db/generate", {
+    const database_result = await fetch(`${data_service_url}/db/generate`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
