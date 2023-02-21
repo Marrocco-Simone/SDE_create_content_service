@@ -83,7 +83,7 @@ app.post("/prompt", authenticateToken, async (req, res) => {
       img_b64,
     };
 
-    const database_result = await fetch(`${data_service_url}/db/generate`, {
+    const database_result = await fetch(`${data_service_url}/db/store`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
