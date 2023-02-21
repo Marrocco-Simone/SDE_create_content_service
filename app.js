@@ -23,7 +23,31 @@ app.get("/", (req, res) => {
   res.send({ online: true });
 });
 
-app.post("/prompt", async (req, res) => {
+async function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.status(401).json({ error: "No Token given" });
+
+  const login_result = await fetch(`${data_service_url}/db/login`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (login_result.status !== 200) {
+    return res.status(401).send({ error: "Invalid Token" });
+  }
+
+  req.token = token;
+
+  const login_result_json = await login_result.json();
+  req.user = login_result_json;
+  next();
+}
+
+app.post("/prompt", authenticateToken, async (req, res) => {
   try {
     if (!req?.body?.prompt) {
       return res.status(400).send({ error: "Missing field 'prompt' in body" });
@@ -39,7 +63,7 @@ app.post("/prompt", async (req, res) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ prompt }),
-    })
+    });
 
     if (dalle_result.status === 200) {
       console.log("Images correctly generated");
@@ -59,13 +83,11 @@ app.post("/prompt", async (req, res) => {
       img_b64,
     };
 
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2M2Y0Y2I0NjA5YTQ5ZTQzMjA4ZTU4MTEiLCJlbWFpbCI6InNpbW9uZUBzZGUuaXQiLCJpYXQiOjE2NzY5ODcyNDksImV4cCI6MTY3NzE2MDA0OX0.-E45997sAFbp_JUR7TeGOAQjikel3rB_hvfrbF_9f54";
     const database_result = await fetch(`${data_service_url}/db/generate`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${req.token}`,
       },
       body: JSON.stringify(body),
     });
