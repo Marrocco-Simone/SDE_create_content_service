@@ -11,7 +11,7 @@ app.use(cors());
 app.use(requestLogger);
 
 app.get("/", serverOnline);
-app.post("/prompt", authenticateToken, createNewContent);
+app.post("/create", authenticateToken, createNewContent);
 
 // Start the server
 const port = process.env.PORT;
