@@ -1,53 +1,10 @@
 require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
 const { default: fetch } = require("node-fetch");
 
 const data_service_url = process.env.DATA_SERVICE_URL;
 const dalle_service_url = process.env.DALLE_SERVICE_URL;
 
-// Set up the server
-const app = express();
-app.use(express.json({ limit: "16mb" }));
-app.use(cors());
-
-// log the requets I get
-function requestLogger(req, res, next) {
-  console.log(`requested ${req.method} ${req.url}`);
-  next();
-}
-app.use(requestLogger);
-
-// basic api to tell that we're online
-app.get("/", (req, res) => {
-  res.send({ online: true });
-});
-
-async function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (token == null) return res.status(401).json({ error: "No Token given" });
-
-  const login_result = await fetch(`${data_service_url}/db/login`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (login_result.status !== 200) {
-    return res.status(401).send({ error: "Invalid Token" });
-  }
-
-  req.token = token;
-
-  const login_result_json = await login_result.json();
-  req.user = login_result_json;
-  next();
-}
-
-app.post("/prompt", authenticateToken, async (req, res) => {
+async function createNewContent(req, res) {
   try {
     if (!req?.body?.prompt) {
       return res.status(400).send({ error: "Missing field 'prompt' in body" });
@@ -98,10 +55,6 @@ app.post("/prompt", authenticateToken, async (req, res) => {
   } catch (e) {
     console.error(e);
   }
-});
+}
 
-// Start the server
-const port = process.env.PORT;
-app.listen(port, () => {
-  console.log(`Listening on port http://localhost:${port}`);
-});
+module.exports = { createNewContent };
