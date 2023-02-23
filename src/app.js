@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { requestLogger, authenticateToken } = require("./middleware");
+const { requestLogger, authenticateToken, pageNotFound } = require("./middleware");
 const { serverOnline, createNewContent } = require("./controllers");
 
 // Set up the server
@@ -12,6 +12,8 @@ app.use(requestLogger);
 
 app.get("/", serverOnline);
 app.post("/create", authenticateToken, createNewContent);
+
+app.use(pageNotFound);
 
 // Start the server
 const port = process.env.PORT;
