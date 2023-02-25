@@ -1,0 +1,35 @@
+steps:
+# install dependencies
+- name: 'node'
+  entrypoint: 'npm'
+  args: ['install', '--only-production']
+
+# create the .env file
+- name: 'node'
+  entrypoint: 'npm'
+  # this command must be created on the package.json file
+  args: ["run", "create-env"]
+  # you need to enter the env variables for the server in the cloud build > trigger page > advanced > substitution variables
+  env:
+    - 'OPENAI_API_KEY=${_OPENAI_API_KEY}'
+
+# create the docker image from the Dockerfile
+- name: 'gcr.io/cloud-builders/docker'
+  # third parameter is ${SERVER_LOCATION}-docker.pkg.dev/${PROJECT_NAME}/${ARTIFACT_REPOSITORY_NAME}/${DOCKER_IMAGE_NAME}
+  # you can find it in the Artifact Registry page
+  # ${DOCKER_IMAGE_NAME} can be a new one
+  args: [ 'build', '-t', 'europe-west8-docker.pkg.dev/sdeservices/sde-services-docker/create_content-service', '.' ]
+
+# save docker image to Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  # same docker image name as before
+  args: ['push', 'europe-west8-docker.pkg.dev/sdeservices/sde-services-docker/create_content-service']
+
+# Deploy container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  # the fifth parameter is the same docker image name as before
+  # the third one is the name of the service in the Cloud Run page (it can be a new name)
+  args: ['run', 'deploy', 'create_content-service', '--image', 'europe-west8-docker.pkg.dev/sdeservices/sde-services-docker/create_content-service', '--region', 'europe-north1', '--platform', 'managed']
+
+images: ['europe-west8-docker.pkg.dev/sdeservices/sde-services-docker/create_content-service']

@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "node src/app.js",
-    "start-dev": "nodemon src/app.js"
+    "start-dev": "nodemon src/app.js",
+    "create-env": "printenv > .env",
+    "artifactregistry-login": "npx google-artifactregistry-auth"
   },
   "keywords": [],
   "author": "",
