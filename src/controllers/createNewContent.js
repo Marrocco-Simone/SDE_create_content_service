@@ -49,17 +49,22 @@ async function createNewContent(req, res) {
     const content_text = blogger_result_json.text;
 
     // * dalle api
-    const dalle_result_json = await makeAFetch(
-      `${dalle_service_url}/image`,
-      "POST",
-      token,
-      { prompt },
-      "images"
-    );
-    const img_url = dalle_result_json.url;
-    const img_result = await fetch(img_url);
-    const img_buffer = await img_result.buffer();
-    const img_b64 = img_buffer.toString("base64");
+    let img_b64 = "";
+    try {
+      const dalle_result_json = await makeAFetch(
+        `${dalle_service_url}/image`,
+        "POST",
+        token,
+        { prompt },
+        "images"
+      );
+      const img_url = dalle_result_json.url;
+      const img_result = await fetch(img_url);
+      const img_buffer = await img_result.buffer();
+      img_b64 = img_buffer.toString("base64");
+    } catch (e) {
+      console.log(e.message);
+    }
 
     // * store everything api
     const title = `${prompt}`;
