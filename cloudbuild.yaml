@@ -11,7 +11,9 @@ steps:
   args: ["run", "create-env"]
   # you need to enter the env variables for the server in the cloud build > trigger page > advanced > substitution variables
   env:
-    - 'OPENAI_API_KEY=${_OPENAI_API_KEY}'
+    - 'DATA_SERVICE_URL=${_DATA_SERVICE_URL}'
+    - 'DALLE_SERVICE_URL=${_DALLE_SERVICE_URL}'
+    - 'BLOGGER_SERVICE_URL=${_BLOGGER_SERVICE_URL}'
 
 # create the docker image from the Dockerfile
 - name: 'gcr.io/cloud-builders/docker'
