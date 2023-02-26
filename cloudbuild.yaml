@@ -14,6 +14,7 @@ steps:
     - 'DATA_SERVICE_URL=${_DATA_SERVICE_URL}'
     - 'DALLE_SERVICE_URL=${_DALLE_SERVICE_URL}'
     - 'BLOGGER_SERVICE_URL=${_BLOGGER_SERVICE_URL}'
+    - 'STORAGE_SERVICE_URL=${_STORAGE_SERVICE_URL}'
 
 # create the docker image from the Dockerfile
 - name: 'gcr.io/cloud-builders/docker'

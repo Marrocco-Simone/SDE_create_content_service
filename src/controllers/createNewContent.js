@@ -4,6 +4,7 @@ const { default: fetch } = require("node-fetch");
 const data_service_url = process.env.DATA_SERVICE_URL;
 const dalle_service_url = process.env.DALLE_SERVICE_URL;
 const blogger_service_url = process.env.BLOGGER_SERVICE_URL;
+const storage_service_url = process.env.STORAGE_SERVICE_URL;
 
 async function makeAFetch(url, method, token, body, item_description) {
   console.log(`starting generation of ${item_description}`);
@@ -35,6 +36,7 @@ async function createNewContent(req, res) {
 
     const { prompt } = req.body;
     const token = req.token;
+    const title = `${prompt}`;
 
     res.send({ received: true });
 
@@ -66,12 +68,24 @@ async function createNewContent(req, res) {
       console.log(e.message);
     }
 
-    // * store everything api
-    const title = `${prompt}`;
+    // * store image api
+    let img_url = "";
+    if (img_b64) {
+      const storage_result_json = await makeAFetch(
+        `${storage_service_url}/store`,
+        "POST",
+        token,
+        { title, img_b64 },
+        "storage"
+      );
+      img_url = storage_result_json.url;
+    }
+
+    // * store to db api
     const body = {
       title,
       content_text,
-      img_b64,
+      img_url,
     };
 
     const database_result_json = await makeAFetch(
