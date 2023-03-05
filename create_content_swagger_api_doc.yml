@@ -1,0 +1,44 @@
+openapi: '3.0.2'
+info:
+  title: Create content gateway 
+  version: '1.0'
+servers:
+  - url: https://create-content-service-7x5inv6roa-lz.a.run.app
+paths:
+  /create:
+    post:
+      summary: Create content communicating with the services.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  prompt:
+                    type: string
+      responses:
+        '200':
+          description: An text object.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                    example: true
+                
+        '401':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Unauthorized
